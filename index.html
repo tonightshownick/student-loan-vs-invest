@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Loan vs. Invest Decision Engine</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f9f8f6;
+      --surface: #ffffff;
+      --surface2: #f2f1ee;
+      --border: rgba(0,0,0,0.1);
+      --border-md: rgba(0,0,0,0.18);
+      --text: #1a1a18;
+      --text-muted: #6b6b66;
+      --text-hint: #9e9e98;
+      --blue: #3266ad;
+      --blue-light: rgba(50,102,173,0.08);
+      --green: #3a9e75;
+      --green-light: rgba(58,158,117,0.06);
+      --red: #E24B4A;
+      --amber: #ba7517;
+      --radius: 8px;
+      --radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #18181a;
+        --surface: #232325;
+        --surface2: #2c2c2f;
+        --border: rgba(255,255,255,0.1);
+        --border-md: rgba(255,255,255,0.18);
+        --text: #f0efe8;
+        --text-muted: #9e9e98;
+        --text-hint: #6b6b66;
+        --blue-light: rgba(50,102,173,0.15);
+        --green-light: rgba(58,158,117,0.1);
+      }
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+
+    header { margin-bottom: 2.5rem; }
+    header h1 { font-size: 28px; font-weight: normal; letter-spacing: -0.5px; margin-bottom: 6px; }
+    header p { font-size: 14px; color: var(--text-muted); font-family: 'Courier New', monospace; }
+
+    .panel {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-hint);
+      margin-bottom: 1.25rem;
+    }
+
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .inputs-grid { grid-template-columns: 1fr; }
+    }
+
+    .input-col-title {
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--text);
+      margin-bottom: 14px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .slider-row {
+      margin-bottom: 14px;
+    }
+
+    .slider-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 5px;
+    }
+
+    .slider-label { font-size: 13px; color: var(--text-muted); }
+    .slider-val { font-size: 13px; font-weight: bold; color: var(--text); font-family: 'Courier New', monospace; }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border-md);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--blue);
+      cursor: pointer;
+      border: 2px solid var(--surface);
+      box-shadow: 0 0 0 1px var(--border-md);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--blue);
+      cursor: pointer;
+      border: 2px solid var(--surface);
+    }
+
+    .slider-hint { font-size: 11px; color: var(--text-hint); margin-top: 3px; font-style: italic; }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .metric {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+    .metric-label { font-size: 11px; color: var(--text-hint); margin-bottom: 5px; font-family: 'Courier New', monospace; }
+    .metric-val { font-size: 22px; font-weight: normal; color: var(--text); font-family: 'Georgia', serif; }
+    .metric-sub { font-size: 11px; color: var(--text-hint); margin-top: 3px; }
+
+    .verdict {
+      border: 0.5px solid var(--border-md);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: border-color 0.3s;
+    }
+    .verdict-title { font-size: 15px; font-weight: bold; margin-bottom: 6px; }
+    .verdict-body { font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+    .verdict.invest { border-color: var(--green); }
+    .verdict.payoff { border-color: var(--red); }
+    .verdict.mixed  { border-color: var(--amber); }
+    .verdict.utility { border-color: var(--amber); }
+
+    .tabs { display: flex; gap: 6px; margin-bottom: 1.25rem; }
+    .tab {
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+      padding: 5px 14px;
+      border: 0.5px solid var(--border-md);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .tab.active { background: var(--surface2); color: var(--text); }
+    .tab:hover:not(.active) { background: var(--surface2); }
+
+    .chart-wrap { position: relative; width: 100%; margin-bottom: 1rem; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--text-muted); margin-bottom: 1rem; font-family: 'Courier New', monospace; }
+    .legend span { display: flex; align-items: center; gap: 5px; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    .scenario-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+    .scenario-card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 14px;
+      text-align: center;
+    }
+    .scenario-label { font-size: 11px; color: var(--text-hint); margin-bottom: 5px; font-family: 'Courier New', monospace; }
+    .scenario-val { font-size: 15px; font-weight: bold; }
+    .scenario-sub { font-size: 11px; color: var(--text-hint); margin-top: 4px; }
+
+    footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-hint);
+      margin-top: 3rem;
+      font-family: 'Courier New', monospace;
+      line-height: 1.8;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Student Loan vs. Invest</h1>
+    <p>decision engine — corporate finance model · monte carlo simulation</p>
+  </header>
+
+  <div class="panel">
+    <div class="panel-title">Parameters</div>
+    <div class="inputs-grid">
+      <div>
+        <div class="input-col-title">// loan details</div>
+
+        <div class="slider-row">
+          <div class="slider-row-top">
+            <span class="slider-label">Loan balance</span>
+            <span class="slider-val" id="balance-out">$45,000</span>
+          </div>
+          <input type="range" id="balance" min="5000" max="200000" step="1000" value="45000">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-row-top">
+            <span class="slider-label">Interest rate</span>
+            <span class="slider-val" id="rate-out">6.5%</span>
+          </div>
+          <input type="range" id="rate" min="1" max="15" step="0.1" value="6.5">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-row-top">
+            <span class="slider-label">Loan term</span>
+            <span class="slider-val" id="term-out">10 yr</span>
+          </div>
+          <input type="range" id="term" min="5" max="30" step="1" value="10">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-row-top">
+            <span class="slider-label">Monthly surplus</span>
+            <span class="slider-val" id="surplus-out">$300</span>
+          </div>
+          <input type="range" id="surplus" min="50" max="2000" step="50" value="300">
+        </div>
+      </div>
+
+      <div>
+        <div class="input-col-title">// investment assumptions</div>
+
+        <div class="slider-row">
+          <div class="slider-row-top">
+            <span class="slider-label">Expected market return</span>
+            <span class="slider-val" id="mret-out">8.0%</span>
+          </div>
+          <input type="range" id="mret" min="1" max="15" step="0.1" value="8">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-row-top">
+            <span class="slider-label">Return volatility</span>
+            <span class="slider-val" id="mvol-out">14.0%</span>
+          </div>
+          <input type="range" id="mvol" min="1" max="25" step="0.5" value="14">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-row-top">
+            <span class="slider-label">Capital gains tax</span>
+            <span class="slider-val" id="taxrate-out">15%</span>
+          </div>
+          <input type="range" id="taxrate" min="0" max="40" step="1" value="15">
+        </div>
+
+        <div class="slider-row">
+          <div class="slider-row-top">
+            <span class="slider-label">Debt-free utility (0–10)</span>
+            <span class="slider-val" id="utility-out">5</span>
+          </div>
+          <input type="range" id="utility" min="0" max="10" step="1" value="5">
+          <div class="slider-hint">Psychological value of being debt-free</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics-grid">
+    <div class="metric">
+      <div class="metric-label">Break-even return</div>
+      <div class="metric-val" id="breakeven">—</div>
+      <div class="metric-sub">Invest above this rate</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Interest saved</div>
+      <div class="metric-val" id="int-saved">—</div>
+      <div class="metric-sub">Guaranteed return</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Net wealth advantage</div>
+      <div class="metric-val" id="net-adv">—</div>
+      <div class="metric-sub">Invest vs. payoff (base)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Prob. invest wins</div>
+      <div class="metric-val" id="prob-win">—</div>
+      <div class="metric-sub">Monte Carlo · 5,000 runs</div>
+    </div>
+  </div>
+
+  <div class="verdict" id="verdict-box">
+    <div class="verdict-title" id="verdict-title">—</div>
+    <div class="verdict-body" id="verdict-body">—</div>
+  </div>
+
+  <div class="panel">
+    <div class="tabs">
+      <button class="tab active" onclick="setTab('wealth')">wealth over time</button>
+      <button class="tab" onclick="setTab('scenarios')">scenario analysis</button>
+      <button class="tab" onclick="setTab('monte')">monte carlo distribution</button>
+    </div>
+
+    <div id="tab-wealth">
+      <div class="chart-wrap" style="height: 280px;"><canvas id="wealthChart"></canvas></div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#3266ad;"></span>invest surplus</span>
+        <span><span class="legend-dot" style="background:#3a9e75;"></span>aggressive payoff</span>
+      </div>
+    </div>
+
+    <div id="tab-scenarios" style="display:none;">
+      <div class="scenario-grid" id="scenario-grid"></div>
+    </div>
+
+    <div id="tab-monte" style="display:none;">
+      <div class="chart-wrap" style="height: 260px;"><canvas id="monteChart"></canvas></div>
+      <div class="legend">
+        <span><span class="legend-dot" style="background:#3266ad;"></span>invest wins</span>
+        <span><span class="legend-dot" style="background:#E24B4A;"></span>payoff wins</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>Built on corporate finance principles: Time Value of Money · Capital Budgeting · Risk-Return</p>
+    <p>For educational purposes only. Not financial advice.</p>
+  </footer>
+
+</div>
+
+<script>
+let wealthChartInst = null, monteChartInst = null;
+
+function fmt(n) { return '$' + Math.round(Math.abs(n)).toLocaleString(); }
+function fmtp(n) { return n.toFixed(1) + '%'; }
+
+function monthlyPayment(P, annualRate, years) {
+  const r = annualRate / 100 / 12;
+  const n = years * 12;
+  if (r === 0) return P / n;
+  return P * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+}
+
+function simulateStrategies(balance, rate, term, surplus, mret, mvol, taxrate) {
+  const r = rate / 100 / 12;
+  const months = term * 12;
+  const stdPmt = monthlyPayment(balance, rate, term);
+  const mr = mret / 100 / 12;
+
+  let loanA = balance, paidInterestA = 0, monthsA = 0;
+  let postPayoffSavings = 0;
+  const extraPmt = stdPmt + surplus;
+  while (loanA > 0 && monthsA < months) {
+    const ic = loanA * r;
+    paidInterestA += ic;
+    const pr = Math.min(extraPmt - ic, loanA);
+    loanA -= pr; monthsA++;
+  }
+  const monthsFreed = months - monthsA;
+  for (let m = 0; m < monthsFreed; m++) {
+    postPayoffSavings = postPayoffSavings * (1 + mr) + extraPmt;
+  }
+  const wealthA = postPayoffSavings * (1 - taxrate / 100);
+
+  let loanB = balance, investPort = 0, paidInterestB = 0;
+  for (let m = 0; m < months; m++) {
+    const ic = loanB * r;
+    paidInterestB += ic;
+    const pr = Math.min(stdPmt - ic, loanB);
+    loanB = Math.max(loanB - pr, 0);
+    investPort = investPort * (1 + mr) + surplus;
+  }
+  const wealthB = investPort * (1 - taxrate / 100) - loanB;
+
+  return { wealthA, wealthB, intSaved: paidInterestB - paidInterestA, payoffMonth: monthsA };
+}
+
+function computeBreakeven(balance, rate, term, surplus, taxrate) {
+  for (let r = 1; r <= 20; r += 0.05) {
+    const res = simulateStrategies(balance, rate, term, surplus, r, 14, taxrate);
+    if (res.wealthB > res.wealthA) return r;
+  }
+  return 20;
+}
+
+function gaussRand() {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+}
+
+function runMonteCarlo(balance, rate, term, surplus, mret, mvol, taxrate, runs) {
+  let wins = 0;
+  const diffs = [];
+  const r = rate / 100 / 12;
+  const months = term * 12;
+  const stdPmt = monthlyPayment(balance, rate, term);
+  const extraPmt = stdPmt + surplus;
+  const baseR = rate / 100 / 12;
+  const mr2 = mret / 100 / 12;
+
+  for (let i = 0; i < runs; i++) {
+    let investPort = 0, loanB = balance;
+    for (let m = 0; m < months; m++) {
+      const annReturn = (mret / 100) + (mvol / 100) * gaussRand();
+      const mr = annReturn / 12;
+      const ic = loanB * r;
+      const pr = Math.min(stdPmt - ic, loanB);
+      loanB = Math.max(loanB - pr, 0);
+      investPort = investPort * (1 + mr) + surplus;
+    }
+    const wealthB = investPort * (1 - taxrate / 100) - loanB;
+
+    let loanA = balance, monthsA = 0, postSav = 0;
+    while (loanA > 0 && monthsA < months) {
+      const ic = loanA * baseR;
+      const pr = Math.min(extraPmt - ic, loanA);
+      loanA -= pr; monthsA++;
+    }
+    const monthsFreed = months - monthsA;
+    for (let m = 0; m < monthsFreed; m++) {
+      postSav = postSav * (1 + mr2) + extraPmt;
+    }
+    const wealthA = postSav * (1 - taxrate / 100);
+    const diff = wealthB - wealthA;
+    diffs.push(diff);
+    if (wealthB > wealthA) wins++;
+  }
+  return { prob: wins / runs * 100, diffs };
+}
+
+function buildWealthTimeline(balance, rate, term, surplus, mret, taxrate) {
+  const years = [], wA = [], wB = [];
+  const stdPmt = monthlyPayment(balance, rate, term);
+  const r = rate / 100 / 12;
+  const mr = mret / 100 / 12;
+  let loanA = balance, investA = 0, paidOffA = false;
+  let loanB = balance, investB = 0;
+  for (let yr = 0; yr <= term; yr++) {
+    if (yr > 0) {
+      for (let m = 0; m < 12; m++) {
+        const extraPmt = stdPmt + surplus;
+        if (!paidOffA && loanA > 0) {
+          const ic = loanA * r;
+          const pr = Math.min(extraPmt - ic, loanA);
+          loanA = Math.max(loanA - pr, 0);
+          if (loanA <= 0) paidOffA = true;
+        } else {
+          investA = investA * (1 + mr) + extraPmt;
+        }
+        const ic2 = loanB * r;
+        const pr2 = Math.min(stdPmt - ic2, loanB);
+        loanB = Math.max(loanB - pr2, 0);
+        investB = investB * (1 + mr) + surplus;
+      }
+    }
+    years.push('Yr ' + yr);
+    wA.push(Math.round(investA * (1 - taxrate / 100)));
+    wB.push(Math.round(investB * (1 - taxrate / 100) - loanB));
+  }
+  return { years, wA, wB };
+}
+
+function buildScenarios(balance, rate, term, surplus, taxrate) {
+  return [
+    { label: 'Bear market', ret: 3, vol: 18 },
+    { label: 'Base case', ret: 8, vol: 14 },
+    { label: 'Bull market', ret: 12, vol: 16 },
+  ].map(s => {
+    const res = simulateStrategies(balance, rate, term, surplus, s.ret, s.vol, taxrate);
+    return { ...s, wA: res.wealthA, wB: res.wealthB, winner: res.wealthB > res.wealthA ? 'invest' : 'payoff' };
+  });
+}
+
+function buildMonteHistogram(diffs) {
+  const min = Math.min(...diffs), max = Math.max(...diffs);
+  const bins = 20, binSize = (max - min) / bins;
+  const labels = [], countsWin = [], countsLose = [];
+  for (let i = 0; i < bins; i++) {
+    const lo = min + i * binSize, hi = lo + binSize, mid = (lo + hi) / 2;
+    labels.push((mid >= 0 ? '+' : '-') + '$' + Math.round(Math.abs(mid) / 1000) + 'k');
+    const inBin = diffs.filter(d => d >= lo && d < hi);
+    countsWin.push(inBin.filter(d => d >= 0).length);
+    countsLose.push(inBin.filter(d => d < 0).length);
+  }
+  return { labels, countsWin, countsLose };
+}
+
+function setTab(tab) {
+  ['wealth', 'scenarios', 'monte'].forEach((t, i) => {
+    document.getElementById('tab-' + t).style.display = t === tab ? '' : 'none';
+    document.querySelectorAll('.tab')[i].classList.toggle('active', t === tab);
+  });
+}
+
+function update() {
+  const balance  = +document.getElementById('balance').value;
+  const rate     = +document.getElementById('rate').value;
+  const term     = +document.getElementById('term').value;
+  const surplus  = +document.getElementById('surplus').value;
+  const mret     = +document.getElementById('mret').value;
+  const mvol     = +document.getElementById('mvol').value;
+  const taxrate  = +document.getElementById('taxrate').value;
+  const utility  = +document.getElementById('utility').value;
+
+  document.getElementById('balance-out').textContent = '$' + balance.toLocaleString();
+  document.getElementById('rate-out').textContent    = rate.toFixed(1) + '%';
+  document.getElementById('term-out').textContent    = term + ' yr';
+  document.getElementById('surplus-out').textContent = '$' + surplus.toLocaleString();
+  document.getElementById('mret-out').textContent    = mret.toFixed(1) + '%';
+  document.getElementById('mvol-out').textContent    = mvol.toFixed(1) + '%';
+  document.getElementById('taxrate-out').textContent = taxrate + '%';
+  document.getElementById('utility-out').textContent = utility;
+
+  const res      = simulateStrategies(balance, rate, term, surplus, mret, mvol, taxrate);
+  const breakeven = computeBreakeven(balance, rate, term, surplus, taxrate);
+  const mc       = runMonteCarlo(balance, rate, term, surplus, mret, mvol, taxrate, 5000);
+  const netAdv   = res.wealthB - res.wealthA;
+
+  document.getElementById('breakeven').textContent = fmtp(breakeven);
+  document.getElementById('int-saved').textContent = fmt(res.intSaved);
+  document.getElementById('net-adv').textContent   = (netAdv >= 0 ? '+' : '-') + fmt(netAdv);
+  document.getElementById('prob-win').textContent  = mc.prob.toFixed(1) + '%';
+
+  const vbox  = document.getElementById('verdict-box');
+  const vtitle = document.getElementById('verdict-title');
+  const vbody  = document.getElementById('verdict-body');
+  vbox.className = 'verdict';
+
+  if (utility >= 8) {
+    vbox.classList.add('utility');
+    vtitle.textContent = 'Pay off aggressively — utility preference';
+    vbody.textContent  = 'Your debt-free utility score (' + utility + '/10) indicates the psychological value of eliminating this debt outweighs the expected financial gain from investing. Even if the math favors investing, peace of mind is a legitimate financial variable.';
+  } else if (mret > breakeven && mc.prob > 65) {
+    vbox.classList.add('invest');
+    vtitle.textContent = 'Invest the surplus';
+    vbody.textContent  = 'Your expected market return (' + fmtp(mret) + ') exceeds the break-even rate of ' + fmtp(breakeven) + '. Monte Carlo simulation shows investing wins ' + mc.prob.toFixed(1) + '% of the time across 5,000 scenarios. Net wealth advantage at the base case is ' + (netAdv >= 0 ? '+' : '') + fmt(netAdv) + ' over ' + term + ' years.';
+  } else if (mret <= breakeven || mc.prob < 50) {
+    vbox.classList.add('payoff');
+    vtitle.textContent = 'Pay off aggressively';
+    vbody.textContent  = 'Your loan rate (' + fmtp(rate) + ') is near or above the break-even threshold of ' + fmtp(breakeven) + '. The guaranteed return from eliminating ' + fmt(res.intSaved) + ' in interest beats an uncertain market. Investing only wins ' + mc.prob.toFixed(1) + '% of simulated scenarios.';
+  } else {
+    vbox.classList.add('mixed');
+    vtitle.textContent = 'Mixed — slight edge to investing';
+    vbody.textContent  = 'The math mildly favors investing (' + mc.prob.toFixed(1) + '% of Monte Carlo runs) but the margin is thin. Your loan rate of ' + fmtp(rate) + ' is close to the break-even of ' + fmtp(breakeven) + '. Consider a hybrid: capture any employer 401k match first, then direct the remainder toward the loan.';
+  }
+
+  const tl = buildWealthTimeline(balance, rate, term, surplus, mret, taxrate);
+  if (wealthChartInst) wealthChartInst.destroy();
+  wealthChartInst = new Chart(document.getElementById('wealthChart'), {
+    type: 'line',
+    data: {
+      labels: tl.years,
+      datasets: [
+        { label: 'Invest surplus', data: tl.wB, borderColor: '#3266ad', backgroundColor: 'rgba(50,102,173,0.08)', tension: 0.3, fill: true, pointRadius: 3 },
+        { label: 'Aggressive payoff', data: tl.wA, borderColor: '#3a9e75', backgroundColor: 'rgba(58,158,117,0.06)', tension: 0.3, fill: true, pointRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { callback: v => '$' + (v / 1000).toFixed(0) + 'k', font: { size: 11 } }, grid: { color: 'rgba(128,128,128,0.1)' } },
+        x: { ticks: { font: { size: 11 }, autoSkip: false, maxRotation: 0 } }
+      }
+    }
+  });
+
+  const scenarios = buildScenarios(balance, rate, term, surplus, taxrate);
+  const grid = document.getElementById('scenario-grid');
+  grid.innerHTML = '';
+  scenarios.forEach(s => {
+    const color = s.winner === 'invest' ? '#3266ad' : '#3a9e75';
+    const adv = s.wB - s.wA;
+    grid.innerHTML += `
+      <div class="scenario-card">
+        <div class="scenario-label">${s.label} · ${s.ret}% return</div>
+        <div class="scenario-val" style="color:${color};">${s.winner === 'invest' ? 'Invest' : 'Payoff'}</div>
+        <div class="scenario-sub">Net adv: ${adv >= 0 ? '+' : ''}${fmt(adv)}</div>
+      </div>
+      <div class="scenario-card">
+        <div class="scenario-label">Invest wealth</div>
+        <div class="scenario-val">${fmt(s.wB)}</div>
+      </div>
+      <div class="scenario-card">
+        <div class="scenario-label">Payoff wealth</div>
+        <div class="scenario-val">${fmt(s.wA)}</div>
+      </div>`;
+  });
+
+  const hist = buildMonteHistogram(mc.diffs);
+  if (monteChartInst) monteChartInst.destroy();
+  monteChartInst = new Chart(document.getElementById('monteChart'), {
+    type: 'bar',
+    data: {
+      labels: hist.labels,
+      datasets: [
+        { label: 'Invest wins', data: hist.countsWin, backgroundColor: '#3266ad' },
+        { label: 'Payoff wins', data: hist.countsLose, backgroundColor: '#E24B4A' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { stacked: true, ticks: { font: { size: 10 }, maxRotation: 45, autoSkip: true, maxTicksLimit: 10 } },
+        y: { stacked: true, ticks: { font: { size: 11 } }, grid: { color: 'rgba(128,128,128,0.1)' }, title: { display: true, text: 'Simulations', font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+['balance','rate','term','surplus','mret','mvol','taxrate','utility'].forEach(id => {
+  document.getElementById(id).addEventListener('input', update);
+});
+
+update();
+</script>
+</body>
+</html>
