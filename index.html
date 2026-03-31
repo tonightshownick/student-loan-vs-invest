@@ -465,6 +465,35 @@
     <p>The "prob. invest wins" number in the metrics above is exactly that count. A high number means investing is the stronger choice across many possible futures. A low number means the guaranteed return of paying off your loan is hard to beat — no matter what the market does.</p>
   </div>
 
+  <div class="explainer">
+    <div class="explainer-title">// course concepts</div>
+    <h2>The finance principles behind this tool</h2>
+
+    <p>This model is built on three core concepts from corporate finance. Here's what each one means and how it shows up in the numbers above.</p>
+
+    <div class="explainer-cards" style="grid-template-columns: repeat(3, 1fr);">
+      <div class="explainer-card">
+        <div class="explainer-card-icon">⏳</div>
+        <div class="explainer-card-title">Time Value of Money</div>
+        <div class="explainer-card-body">A dollar today is worth more than a dollar in the future — because money you have now can be invested and grow. This is why we discount future cash flows back to today's value (present value) and why every dollar of surplus in this model is evaluated based on what it's worth across time.</div>
+      </div>
+      <div class="explainer-card">
+        <div class="explainer-card-icon">📋</div>
+        <div class="explainer-card-title">Capital Budgeting</div>
+        <div class="explainer-card-body">The process of deciding whether a long-term investment is worth making — do the future benefits outweigh the upfront cost? The key tools are NPV and IRR. In this app, paying off your loan is reframed as a capital budgeting decision: you're evaluating whether putting extra money toward debt beats investing it in the market.</div>
+      </div>
+      <div class="explainer-card">
+        <div class="explainer-card-icon">⚖️</div>
+        <div class="explainer-card-title">Risk-Return</div>
+        <div class="explainer-card-body">Higher potential returns always come with higher risk. A Treasury bond pays ~5% because it's nearly risk-free. The stock market returns ~8–10% historically because you can lose money in any given year. In this app, loan payoff is the "risk-free" option — a guaranteed return equal to your interest rate — while investing is the risky one.</div>
+      </div>
+    </div>
+
+    <div class="explainer-highlight">
+      This is exactly why the Monte Carlo simulation matters. Risk-Return theory tells us the market's average return is just that — an average. The simulation shows you the full range of what could actually happen, so you're not making a decision based on a number that almost never occurs in any single year.
+    </div>
+  </div>
+
   <footer>
     <p>Built on corporate finance principles: Time Value of Money · Capital Budgeting · Risk-Return</p>
     <p>For educational purposes only. Not financial advice.</p>
