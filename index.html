@@ -299,6 +299,23 @@
 
   <div class="panel">
     <div class="panel-title">Parameters</div>
+
+    <div style="display: flex; gap: 8px; margin-bottom: 0.75rem;">
+      <button onclick="applyPreset('payoff')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Courier New', monospace; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--red); font-weight: bold; cursor: pointer;">
+        Pay Off Loans ASAP
+      </button>
+      <button onclick="applyPreset('invest')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Courier New', monospace; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--green); font-weight: bold; cursor: pointer;">
+        Maximum Investments
+      </button>
+      <button onclick="applyPreset('realist')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Courier New', monospace; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--blue); font-weight: bold; cursor: pointer;">
+        The Realist
+      </button>
+    </div>
+
+    <div id="preset-desc" style="display: none; margin-bottom: 1.25rem; padding: 10px 14px; background: var(--surface2); border-radius: var(--radius); border-left: 2px solid var(--border-md);">
+      <span id="preset-desc-text" style="font-size: 12px; color: var(--text-muted); font-family: 'Courier New', monospace; line-height: 1.6;"></span>
+    </div>
+
     <div class="inputs-grid">
       <div>
         <div class="input-col-title">// Loan Details</div>
@@ -803,6 +820,35 @@ function update() {
 ['balance','rate','term','surplus','mret','mvol','taxrate','utility'].forEach(id => {
   document.getElementById(id).addEventListener('input', update);
 });
+
+function applyPreset(name) {
+  const presets = {
+    payoff: { balance: 80000, rate: 10, term: 10, surplus: 2000, mret: 4, mvol: 18, taxrate: 25, utility: 9,
+      desc: 'Pay Off Loans ASAP — High balance, high interest rate, and maximum surplus thrown at the loan every month. The math strongly favors elimination over investing. Best for borrowers who hate debt and want out fast.',
+      color: 'var(--red)' },
+    invest: { balance: 15000, rate: 3, term: 20, surplus: 2000, mret: 12, mvol: 10, taxrate: 15, utility: 1,
+      desc: 'Maximum Investments — Low interest rate, long horizon, and every spare dollar going into the market. With a 12% expected return and minimal volatility, investing wins by a wide margin across nearly every simulated future.',
+      color: 'var(--green)' },
+    realist: { balance: 28000, rate: 6.5, term: 10, surplus: 200, mret: 7, mvol: 14, taxrate: 15, utility: 5,
+      desc: 'The Realist — Based on the average American student loan borrower: $28k balance, 6.5% federal rate, $200/month to spare. The verdict lands in "mixed" territory — which is exactly the point. Most people live in the grey area where the answer isn\'t obvious.',
+      color: 'var(--blue)' }
+  };
+  const p = presets[name];
+  document.getElementById('balance').value  = p.balance;
+  document.getElementById('rate').value     = p.rate;
+  document.getElementById('term').value     = p.term;
+  document.getElementById('surplus').value  = p.surplus;
+  document.getElementById('mret').value     = p.mret;
+  document.getElementById('mvol').value     = p.mvol;
+  document.getElementById('taxrate').value  = p.taxrate;
+  document.getElementById('utility').value  = p.utility;
+  const descBox = document.getElementById('preset-desc');
+  const descText = document.getElementById('preset-desc-text');
+  descBox.style.display = 'block';
+  descBox.style.borderLeftColor = p.color;
+  descText.textContent = p.desc;
+  update();
+}
 
 function triggerGameOver() {
   const overlay = document.getElementById('game-over-overlay');
