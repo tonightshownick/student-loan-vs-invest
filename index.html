@@ -288,27 +288,37 @@
   </header>
 
   <div class="panel" style="margin-bottom: 1.5rem;">
-    <div class="panel-title">// authors</div>
-    <p style="font-size: 20px; color: var(--text-muted); font-family: 'Courier New', monospace;">Group 8 &mdash; Dawn Greathouse, Elizabeth Hawkins, Nick Martinez, Ricardo Luna</p>
+    <div style="display: flex; align-items: flex-start; gap: 2rem;">
+      <div style="flex-shrink: 0; border-right: 0.5px solid var(--border-md); padding-right: 2rem;">
+        <div style="font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-hint); margin-bottom: 6px; font-family: 'Space Grotesk', sans-serif;">Authors</div>
+        <div style="font-size: 28px; font-weight: 700; color: var(--text); font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.5px;">Group 8</div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px 3rem; align-content: center; flex: 1;">
+        <div style="font-size: 16px; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif;">Dawn Greathouse</div>
+        <div style="font-size: 16px; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif;">Elizabeth Hawkins</div>
+        <div style="font-size: 16px; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif;">Nick Martinez</div>
+        <div style="font-size: 16px; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif;">Ricardo Luna</div>
+      </div>
+    </div>
   </div>
 
   <div class="panel">
     <div class="panel-title">Parameters</div>
 
     <div style="display: flex; gap: 8px; margin-bottom: 0.75rem;">
-      <button onclick="applyPreset('payoff')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Courier New', monospace; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--red); font-weight: bold; cursor: pointer;">
+      <button onclick="applyPreset('payoff')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Space Grotesk', sans-serif; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--red); font-weight: bold; cursor: pointer;">
         Pay Off Loans ASAP
       </button>
-      <button onclick="applyPreset('invest')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Courier New', monospace; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--green); font-weight: bold; cursor: pointer;">
+      <button onclick="applyPreset('invest')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Space Grotesk', sans-serif; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--green); font-weight: bold; cursor: pointer;">
         Maximum Investments
       </button>
-      <button onclick="applyPreset('realist')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Courier New', monospace; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--blue); font-weight: bold; cursor: pointer;">
+      <button onclick="applyPreset('realist')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Space Grotesk', sans-serif; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--blue); font-weight: bold; cursor: pointer;">
         The Realist
       </button>
     </div>
 
     <div id="preset-desc" style="display: none; margin-bottom: 1.25rem; padding: 10px 14px; background: var(--surface2); border-radius: var(--radius); border-left: 2px solid var(--border-md);">
-      <span id="preset-desc-text" style="font-size: 12px; color: var(--text-muted); font-family: 'Courier New', monospace; line-height: 1.6;"></span>
+      <span id="preset-desc-text" style="font-size: 12px; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif; line-height: 1.6;"></span>
     </div>
 
     <div class="inputs-grid">
