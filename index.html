@@ -214,6 +214,85 @@
       font-family: 'Courier New', monospace;
       line-height: 1.8;
     }
+
+    .explainer {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .explainer-title {
+      font-size: 11px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-hint);
+      margin-bottom: 1.25rem;
+    }
+
+    .explainer h2 {
+      font-size: 18px;
+      font-weight: normal;
+      letter-spacing: -0.3px;
+      margin-bottom: 1rem;
+    }
+
+    .explainer p {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 1rem;
+    }
+
+    .explainer p:last-child { margin-bottom: 0; }
+
+    .explainer-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 1.25rem 0;
+    }
+
+    @media (max-width: 600px) {
+      .explainer-cards { grid-template-columns: 1fr; }
+    }
+
+    .explainer-card {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .explainer-card-icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .explainer-card-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--text);
+      margin-bottom: 5px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .explainer-card-body {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .explainer-highlight {
+      border-left: 2px solid var(--blue);
+      padding-left: 1rem;
+      margin: 1.25rem 0;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.8;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -356,6 +435,41 @@
         <span><span class="legend-dot" style="background:#E24B4A;"></span>payoff wins</span>
       </div>
     </div>
+  </div>
+
+  <div class="explainer">
+    <div class="explainer-title">// what is monte carlo?</div>
+    <h2>Why one answer isn't really an answer</h2>
+
+    <p>Imagine you want to guess what the weather will be like on your birthday next year. You could just say "it's usually around 70 degrees, so it'll probably be 70 degrees." Simple — but not very honest. Because sometimes it's 55, sometimes it's 85, and sometimes it rains all day.</p>
+
+    <p>A smarter approach: instead of guessing once, you imagine 5,000 different possible birthdays — some hot, some cold, some stormy — and see what happens across all of them. Now you don't just get one answer. You get a picture of the whole range of possibilities.</p>
+
+    <div class="explainer-highlight">
+      That's exactly what Monte Carlo simulation does with your money. Instead of assuming the stock market returns exactly 8% every year like clockwork, it "rolls the dice" 5,000 times — each time picking a different sequence of good years, bad years, and mediocre years — and runs your decision through all of them.
+    </div>
+
+    <div class="explainer-cards">
+      <div class="explainer-card">
+        <div class="explainer-card-icon">📅</div>
+        <div class="explainer-card-title">The basic calculator</div>
+        <div class="explainer-card-body">Assumes the market returns exactly 8% every single year. Neat, tidy, and a little dishonest about how the world actually works.</div>
+      </div>
+      <div class="explainer-card">
+        <div class="explainer-card-icon">🎲</div>
+        <div class="explainer-card-title">Monte Carlo</div>
+        <div class="explainer-card-body">Runs 5,000 imaginary futures. Some years the market is up 25%. Some years it's down 30%. Most years it's somewhere in between — just like real life.</div>
+      </div>
+      <div class="explainer-card">
+        <div class="explainer-card-icon">📊</div>
+        <div class="explainer-card-title">What you get</div>
+        <div class="explainer-card-body">Not just one answer, but a probability. "Investing wins in 72% of futures." That's a much more honest picture than a single number.</div>
+      </div>
+    </div>
+
+    <p>At the end of all 5,000 simulations, this tool counts: how many times did investing win? How many times did paying off the loan win? If investing wins in 4,200 out of 5,000 scenarios, that's an 84% probability — a confident result. If it only wins in 2,600, that's basically a coin flip, and the honest answer is "too close to call."</p>
+
+    <p>The "prob. invest wins" number in the metrics above is exactly that count. A high number means investing is the stronger choice across many possible futures. A low number means the guaranteed return of paying off your loan is hard to beat — no matter what the market does.</p>
   </div>
 
   <footer>
