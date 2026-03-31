@@ -50,6 +50,7 @@
       border-radius: var(--radius-lg);
       padding: 1.5rem;
       margin-bottom: 1.5rem;
+      position: relative;
     }
 
     .panel-title {
@@ -370,7 +371,21 @@
           <input type="range" id="utility" min="0" max="10" step="1" value="5">
           <div class="slider-hint">Psychological value of being debt-free</div>
         </div>
+
+        <div style="margin-top: 1.25rem;">
+          <button onclick="triggerGameOver()" style="width: 100%; padding: 10px 16px; font-size: 13px; font-family: 'Courier New', monospace; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--text-muted); cursor: pointer; text-align: left;">
+            What if I don't want to pay my student loans or invest?
+          </button>
+        </div>
       </div>
+    </div>
+
+    <div id="game-over-overlay" style="display:none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(249,248,246,0.96); border-radius: var(--radius-lg); z-index: 10; align-items: center; justify-content: center; flex-direction: column; text-align: center;">
+      <div style="font-size: 64px; font-family: 'Georgia', serif; font-weight: normal; color: var(--red); letter-spacing: -2px; margin-bottom: 0.5rem;">GAME OVER</div>
+      <div style="font-size: 14px; color: var(--text-muted); font-family: 'Courier New', monospace; margin-bottom: 1.5rem;">your future self is not happy with you</div>
+      <button onclick="resetGameOver()" style="padding: 8px 20px; font-size: 12px; font-family: 'Courier New', monospace; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--text-muted); cursor: pointer;">
+        okay fine, take me back
+      </button>
     </div>
   </div>
 
@@ -788,6 +803,16 @@ function update() {
 ['balance','rate','term','surplus','mret','mvol','taxrate','utility'].forEach(id => {
   document.getElementById(id).addEventListener('input', update);
 });
+
+function triggerGameOver() {
+  const overlay = document.getElementById('game-over-overlay');
+  overlay.style.display = 'flex';
+}
+
+function resetGameOver() {
+  const overlay = document.getElementById('game-over-overlay');
+  overlay.style.display = 'none';
+}
 
 update();
 </script>
