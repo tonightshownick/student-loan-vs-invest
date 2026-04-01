@@ -440,30 +440,25 @@
   </div>
 
   <div class="panel">
-    <div class="tabs">
-      <button class="tab active" onclick="setTab('wealth')">wealth over time</button>
-      <button class="tab" onclick="setTab('scenarios')">scenario analysis</button>
-      <button class="tab" onclick="setTab('monte')">monte carlo distribution</button>
+    <div class="panel-title">Wealth over time</div>
+    <div class="chart-wrap" style="height: 280px;"><canvas id="wealthChart"></canvas></div>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:#3266ad;"></span>invest surplus</span>
+      <span><span class="legend-dot" style="background:#3a9e75;"></span>aggressive payoff</span>
     </div>
+  </div>
 
-    <div id="tab-wealth">
-      <div class="chart-wrap" style="height: 280px;"><canvas id="wealthChart"></canvas></div>
-      <div class="legend">
-        <span><span class="legend-dot" style="background:#3266ad;"></span>invest surplus</span>
-        <span><span class="legend-dot" style="background:#3a9e75;"></span>aggressive payoff</span>
-      </div>
-    </div>
+  <div class="panel">
+    <div class="panel-title">Scenario analysis</div>
+    <div class="scenario-grid" id="scenario-grid"></div>
+  </div>
 
-    <div id="tab-scenarios" style="display:none;">
-      <div class="scenario-grid" id="scenario-grid"></div>
-    </div>
-
-    <div id="tab-monte" style="display:none;">
-      <div class="chart-wrap" style="height: 260px;"><canvas id="monteChart"></canvas></div>
-      <div class="legend">
-        <span><span class="legend-dot" style="background:#3266ad;"></span>invest wins</span>
-        <span><span class="legend-dot" style="background:#E24B4A;"></span>payoff wins</span>
-      </div>
+  <div class="panel">
+    <div class="panel-title">Monte Carlo distribution</div>
+    <div class="chart-wrap" style="height: 260px;"><canvas id="monteChart"></canvas></div>
+    <div class="legend">
+      <span><span class="legend-dot" style="background:#3266ad;"></span>invest wins</span>
+      <span><span class="legend-dot" style="background:#E24B4A;"></span>payoff wins</span>
     </div>
   </div>
 
@@ -696,13 +691,6 @@ function buildMonteHistogram(diffs) {
     countsLose.push(inBin.filter(d => d < 0).length);
   }
   return { labels, countsWin, countsLose };
-}
-
-function setTab(tab) {
-  ['wealth', 'scenarios', 'monte'].forEach((t, i) => {
-    document.getElementById('tab-' + t).style.display = t === tab ? '' : 'none';
-    document.querySelectorAll('.tab')[i].classList.toggle('active', t === tab);
-  });
 }
 
 function update() {
