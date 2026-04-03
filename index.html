@@ -305,20 +305,13 @@
   <div class="panel">
     <div class="panel-title">Parameters</div>
 
-    <div style="display: flex; gap: 8px; margin-bottom: 0.75rem;">
-      <button onclick="applyPreset('payoff')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Space Grotesk', sans-serif; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--red); font-weight: bold; cursor: pointer;">
-        Pay Off Loans ASAP
-      </button>
-      <button onclick="applyPreset('invest')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Space Grotesk', sans-serif; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--green); font-weight: bold; cursor: pointer;">
-        Maximum Investments
-      </button>
-      <button onclick="applyPreset('realist')" style="flex: 1; padding: 8px 12px; font-size: 12px; font-family: 'Space Grotesk', sans-serif; background: transparent; border: 0.5px solid var(--border-md); border-radius: var(--radius); color: var(--blue); font-weight: bold; cursor: pointer;">
-        The Realist
-      </button>
-    </div>
-
-    <div id="preset-desc" style="display: none; margin-bottom: 1.25rem; padding: 10px 14px; background: var(--surface2); border-radius: var(--radius); border-left: 2px solid var(--border-md);">
-      <span id="preset-desc-text" style="font-size: 12px; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif; line-height: 1.6;"></span>
+    <div id="personality-box" style="display: flex; align-items: center; gap: 1.25rem; margin-bottom: 1.5rem; padding: 14px 16px; background: var(--surface2); border-radius: var(--radius); border-left: 3px solid var(--blue);">
+      <div style="flex-shrink: 0;">
+        <div style="font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-hint); margin-bottom: 4px;">Your financial personality</div>
+        <div id="personality-name" style="font-size: 20px; font-weight: 700; color: var(--text); font-family: 'Space Grotesk', sans-serif;">—</div>
+      </div>
+      <div style="width: 0.5px; background: var(--border-md); align-self: stretch;"></div>
+      <div id="personality-desc" style="font-size: 13px; color: var(--text-muted); line-height: 1.6;"></div>
     </div>
 
     <div class="inputs-grid">
@@ -360,6 +353,15 @@
 
       <div>
         <div class="input-col-title">// Investment Assumptions</div>
+        <button onclick="fetchCurrentRates()" id="fetch-btn" style="font-size: 11px; font-family: 'Space Grotesk', sans-serif; padding: 4px 10px; border: 0.5px solid var(--border-md); border-radius: var(--radius); background: transparent; color: var(--blue); font-weight: bold; cursor: pointer; margin-bottom: 14px; display: block;">
+          HELP! I don't know anything about finance.
+        </button>
+
+        <div id="live-data-box" style="display: none; background: var(--surface2); border-radius: var(--radius); padding: 10px 14px; margin-bottom: 14px; border-left: 2px solid var(--blue);">
+          <div style="font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-hint); margin-bottom: 6px;">Live market data</div>
+          <div id="live-data-text" style="font-size: 12px; color: var(--text-muted); line-height: 1.7;"></div>
+          <div id="live-data-source" style="font-size: 11px; color: var(--text-hint); margin-top: 6px; font-style: italic;"></div>
+        </div>
 
         <div class="slider-row">
           <div class="slider-row-top">
@@ -367,6 +369,7 @@
             <span class="slider-val" id="mret-out">8.0%</span>
           </div>
           <input type="range" id="mret" min="1" max="15" step="0.1" value="8">
+          <div class="slider-hint">The annualized return you expect from investing (e.g. S&amp;P 500 has historically averaged ~8–10%). Higher = investing looks more attractive.</div>
         </div>
 
         <div class="slider-row">
@@ -375,6 +378,7 @@
             <span class="slider-val" id="mvol-out">14.0%</span>
           </div>
           <input type="range" id="mvol" min="1" max="25" step="0.5" value="14">
+          <div class="slider-hint">How unpredictable the market return is year-to-year. Higher volatility = wider spread of outcomes in the Monte Carlo simulation. ~14% reflects a typical stock portfolio.</div>
         </div>
 
         <div class="slider-row">
@@ -383,6 +387,7 @@
             <span class="slider-val" id="taxrate-out">15%</span>
           </div>
           <input type="range" id="taxrate" min="0" max="40" step="1" value="15">
+          <div class="slider-hint">Tax applied to investment gains when you sell. Long-term capital gains are typically 0%, 15%, or 20% depending on your income. This reduces the net value of the investment strategy.</div>
         </div>
 
         <div class="slider-row">
@@ -391,7 +396,11 @@
             <span class="slider-val" id="utility-out">5</span>
           </div>
           <input type="range" id="utility" min="0" max="10" step="1" value="5">
-          <div class="slider-hint">Psychological value of being debt-free</div>
+          <div style="display: flex; justify-content: space-between; margin-top: 3px;">
+            <span class="slider-hint" style="font-style: normal;">0 = pure math, don't care about debt</span>
+            <span class="slider-hint" style="font-style: normal;">10 = pay it off at all costs</span>
+          </div>
+          <div class="slider-hint">How much you personally value being debt-free, beyond the numbers. At 8 or above, the model overrides the math and recommends paying off the loan regardless.</div>
         </div>
       </div>
     </div>
@@ -411,7 +420,7 @@
     </div>
   </div>
 
-  <div class="metrics-grid">
+  <div class="metrics-grid" style="grid-template-columns: repeat(3, 1fr);">
     <div class="metric">
       <div class="metric-label">Break-even return</div>
       <div class="metric-val" id="breakeven">—</div>
@@ -431,6 +440,21 @@
       <div class="metric-label">Prob. invest wins</div>
       <div class="metric-val" id="prob-win">—</div>
       <div class="metric-sub">Monte Carlo · 5,000 runs</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Aggressive payoff date</div>
+      <div class="metric-val" id="payoff-date-aggressive">—</div>
+      <div class="metric-sub" id="payoff-date-aggressive-sub">With full surplus applied</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Standard payoff date</div>
+      <div class="metric-val" id="payoff-date-standard">—</div>
+      <div class="metric-sub">Minimum payments only</div>
+    </div>
+    <div class="metric" style="grid-column: 1 / -1; border-left: 2px solid var(--blue);">
+      <div class="metric-label">Portfolio covers loan balance by</div>
+      <div class="metric-val" id="crossover-date">—</div>
+      <div class="metric-sub" id="crossover-sub">Month investing surplus could fully pay off remaining loan</div>
     </div>
   </div>
 
@@ -589,6 +613,25 @@ function computeBreakeven(balance, rate, term, surplus, taxrate) {
   return 20;
 }
 
+function computeCrossover(balance, rate, term, surplus, mret) {
+  const r = rate / 100 / 12;
+  const mr = mret / 100 / 12;
+  const stdPmt = monthlyPayment(balance, rate, term);
+  const maxMonths = term * 12;
+
+  let loan = balance;
+  let portfolio = 0;
+
+  for (let m = 0; m < maxMonths; m++) {
+    const ic = loan * r;
+    const pr = Math.min(stdPmt - ic, loan);
+    loan = Math.max(loan - pr, 0);
+    portfolio = portfolio * (1 + mr) + surplus;
+    if (portfolio >= loan) return { month: m + 1, portfolio, loan };
+  }
+  return null;
+}
+
 function gaussRand() {
   let u = 0, v = 0;
   while (u === 0) u = Math.random();
@@ -670,9 +713,21 @@ function buildWealthTimeline(balance, rate, term, surplus, mret, taxrate) {
 
 function buildScenarios(balance, rate, term, surplus, taxrate) {
   return [
-    { label: 'Bear market', ret: 3, vol: 18 },
-    { label: 'Base case', ret: 8, vol: 14 },
-    { label: 'Bull market', ret: 12, vol: 16 },
+    {
+      label: 'Bear market', ret: 3, vol: 18,
+      context: 'Think 2008 or the dot-com crash. Markets are down, returns are low, and your loan\'s interest rate starts to look like a guaranteed win. This is the scenario where paying off debt almost always beats investing.',
+      realWorld: 'Happens roughly every 7–10 years. If you graduate into a recession, this may describe your first few years of repayment.'
+    },
+    {
+      label: 'Base case', ret: 8, vol: 14,
+      context: 'The long-run historical average for a diversified U.S. stock portfolio. Not every year, but across decades, this is roughly what the market has delivered. Most financial planning uses this assumption.',
+      realWorld: 'This is the most realistic scenario for a 10+ year investor. It\'s not guaranteed, but it\'s the closest thing to a "normal" market environment.'
+    },
+    {
+      label: 'Bull market', ret: 12, vol: 16,
+      context: 'Think 2019, 2021, or 2024 — years where the market ran hot. If you invest during a strong bull run, the math almost always favors putting your surplus in the market rather than the loan.',
+      realWorld: 'Bull markets feel great but don\'t last forever. The higher return here comes with higher risk — a few bad years can quickly erase the advantage.'
+    },
   ].map(s => {
     const res = simulateStrategies(balance, rate, term, surplus, s.ret, s.vol, taxrate);
     return { ...s, wA: res.wealthA, wB: res.wealthB, winner: res.wealthB > res.wealthA ? 'invest' : 'payoff' };
@@ -712,6 +767,8 @@ function update() {
   document.getElementById('taxrate-out').textContent = taxrate + '%';
   document.getElementById('utility-out').textContent = utility;
 
+  updatePersonality(balance, rate, term, surplus, mret, mvol, taxrate, utility);
+
   const res      = simulateStrategies(balance, rate, term, surplus, mret, mvol, taxrate);
   const breakeven = computeBreakeven(balance, rate, term, surplus, taxrate);
   const mc       = runMonteCarlo(balance, rate, term, surplus, mret, mvol, taxrate, 5000);
@@ -721,6 +778,41 @@ function update() {
   document.getElementById('int-saved').textContent = fmt(res.intSaved);
   document.getElementById('net-adv').textContent   = (netAdv >= 0 ? '+' : '-') + fmt(netAdv);
   document.getElementById('prob-win').textContent  = mc.prob.toFixed(1) + '%';
+
+  const now = new Date();
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  const aggressiveMonths = res.payoffMonth;
+  const aggressiveDate = new Date(now.getFullYear(), now.getMonth() + aggressiveMonths);
+  const standardDate = new Date(now.getFullYear(), now.getMonth() + (term * 12));
+
+  document.getElementById('payoff-date-aggressive').textContent =
+    months[aggressiveDate.getMonth()] + ' ' + aggressiveDate.getFullYear();
+  document.getElementById('payoff-date-standard').textContent =
+    months[standardDate.getMonth()] + ' ' + standardDate.getFullYear();
+
+  const yearsSaved = ((term * 12) - aggressiveMonths) / 12;
+  document.getElementById('payoff-date-aggressive-sub').textContent =
+    yearsSaved > 0
+      ? Math.floor(yearsSaved) + ' yr' + (Math.floor(yearsSaved) !== 1 ? 's' : '') +
+        (Math.round((yearsSaved % 1) * 12) > 0 ? ' ' + Math.round((yearsSaved % 1) * 12) + ' mo' : '') + ' early'
+      : 'With full surplus applied';
+
+  const crossover = computeCrossover(balance, rate, term, surplus, mret);
+  const crossoverEl = document.getElementById('crossover-date');
+  const crossoverSub = document.getElementById('crossover-sub');
+  if (crossover) {
+    const crossoverDate = new Date(now.getFullYear(), now.getMonth() + crossover.month);
+    crossoverEl.textContent = months[crossoverDate.getMonth()] + ' ' + crossoverDate.getFullYear();
+    const yrs = Math.floor(crossover.month / 12);
+    const mos = crossover.month % 12;
+    crossoverSub.textContent =
+      'After ' + (yrs > 0 ? yrs + ' yr' + (yrs !== 1 ? 's' : '') + (mos > 0 ? ' ' + mos + ' mo' : '') : mos + ' mo') +
+      ' of investing — portfolio (' + fmt(crossover.portfolio) + ') ≥ remaining loan (' + fmt(crossover.loan) + ')';
+  } else {
+    crossoverEl.textContent = 'Beyond horizon';
+    crossoverSub.textContent = 'Portfolio does not cover loan balance within the loan term at this return rate';
+  }
 
   const vbox  = document.getElementById('verdict-box');
   const vtitle = document.getElementById('verdict-title');
@@ -773,8 +865,13 @@ function update() {
     const color = s.winner === 'invest' ? '#3266ad' : '#3a9e75';
     const adv = s.wB - s.wA;
     grid.innerHTML += `
+      <div style="grid-column: 1 / -1; margin-top: 1rem; margin-bottom: 0.25rem;">
+        <div style="font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px;">${s.label} <span style="font-weight: 400; color: var(--text-muted);">· ${s.ret}% assumed return</span></div>
+        <div style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-bottom: 4px;">${s.context}</div>
+        <div style="font-size: 12px; color: var(--text-hint); font-style: italic; line-height: 1.5;">${s.realWorld}</div>
+      </div>
       <div class="scenario-card">
-        <div class="scenario-label">${s.label} · ${s.ret}% return</div>
+        <div class="scenario-label">Verdict</div>
         <div class="scenario-val" style="color:${color};">${s.winner === 'invest' ? 'Invest' : 'Payoff'}</div>
         <div class="scenario-sub">Net adv: ${adv >= 0 ? '+' : ''}${fmt(adv)}</div>
       </div>
@@ -814,33 +911,155 @@ function update() {
   document.getElementById(id).addEventListener('input', update);
 });
 
-function applyPreset(name) {
-  const presets = {
-    payoff: { balance: 80000, rate: 10, term: 10, surplus: 2000, mret: 4, mvol: 18, taxrate: 25, utility: 9,
-      desc: 'Pay Off Loans ASAP — High balance, high interest rate, and maximum surplus thrown at the loan every month. The math strongly favors elimination over investing. Best for borrowers who hate debt and want out fast.',
-      color: 'var(--red)' },
-    invest: { balance: 15000, rate: 3, term: 20, surplus: 2000, mret: 12, mvol: 10, taxrate: 15, utility: 1,
-      desc: 'Maximum Investments — Low interest rate, long horizon, and every spare dollar going into the market. With a 12% expected return and minimal volatility, investing wins by a wide margin across nearly every simulated future.',
-      color: 'var(--green)' },
-    realist: { balance: 28000, rate: 6.5, term: 10, surplus: 200, mret: 7, mvol: 14, taxrate: 15, utility: 5,
-      desc: 'The Realist — Based on the average American student loan borrower: $28k balance, 6.5% federal rate, $200/month to spare. The verdict lands in "mixed" territory — which is exactly the point. Most people live in the grey area where the answer isn\'t obvious.',
-      color: 'var(--blue)' }
+async function fetchCurrentRates() {
+  const btn = document.getElementById('fetch-btn');
+  const box = document.getElementById('live-data-box');
+  const text = document.getElementById('live-data-text');
+  const source = document.getElementById('live-data-source');
+
+  btn.textContent = 'Looking it up...';
+  btn.style.opacity = '0.5';
+  btn.disabled = true;
+  box.style.display = 'block';
+  text.textContent = 'Searching for current market data...';
+  source.textContent = '';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{
+          role: 'user',
+          content: `Search the web and find the following three current figures as of today. Return ONLY a JSON object with no markdown, no backticks, no explanation — just raw JSON with these exact keys:
+{
+  "sp500_return": "<trailing 12-month S&P 500 return as a percentage number only, e.g. 11.2>",
+  "sp500_volatility": "<current annualized S&P 500 volatility or VIX-implied volatility as a percentage number only, e.g. 14.5>",
+  "capital_gains_tax": "<current US long-term capital gains tax rate for middle-income earners as a percentage number only, e.g. 15>",
+  "summary": "<one sentence each summarizing where each figure came from and what date it reflects>",
+  "source_note": "<brief note on sources used>"
+}`
+        }]
+      })
+    });
+
+    const data = await response.json();
+    const fullText = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+
+    let parsed;
+    try {
+      const clean = fullText.replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+    } catch (e) {
+      text.textContent = fullText || 'Could not parse response. Try again.';
+      source.textContent = '';
+      return;
+    }
+
+    text.innerHTML =
+      `<strong>S&P 500 trailing return:</strong> ${parsed.sp500_return}%<br>` +
+      `<strong>Market volatility:</strong> ${parsed.sp500_volatility}%<br>` +
+      `<strong>Long-term capital gains tax:</strong> ${parsed.capital_gains_tax}%<br><br>` +
+      parsed.summary;
+    source.textContent = parsed.source_note;
+
+    const mret = parseFloat(parsed.sp500_return);
+    const mvol = parseFloat(parsed.sp500_volatility);
+    const tax  = parseFloat(parsed.capital_gains_tax);
+
+    if (!isNaN(mret)) {
+      const clamped = Math.min(Math.max(mret, 1), 15);
+      document.getElementById('mret').value = clamped;
+    }
+    if (!isNaN(mvol)) {
+      const clamped = Math.min(Math.max(mvol, 1), 25);
+      document.getElementById('mvol').value = clamped;
+    }
+    if (!isNaN(tax)) {
+      const clamped = Math.min(Math.max(Math.round(tax), 0), 40);
+      document.getElementById('taxrate').value = clamped;
+    }
+    update();
+
+  } catch (err) {
+    text.textContent = 'Could not fetch live data. Check your connection and try again.';
+    source.textContent = '';
+  } finally {
+    btn.textContent = "HELP! I don't know anything about finance.";
+    btn.style.opacity = '1';
+    btn.disabled = false;
+  }
+}
+
+function updatePersonality(balance, rate, term, surplus, mret, mvol, taxrate, utility) {
+  const personalities = [
+    {
+      name: 'The Anxious Avoider',
+      color: '#E24B4A',
+      desc: 'Debt keeps you up at night. You\'d rather have zero loans than a bigger portfolio. Peace of mind is worth more to you than a higher expected return.',
+      match: () => utility >= 8 && rate >= 6
+    },
+    {
+      name: 'The Doomsday Prepper',
+      color: '#ba7517',
+      desc: 'You expect markets to be rough and unpredictable. High volatility, low return assumptions — you\'re planning for the worst and hoping to be wrong.',
+      match: () => mvol >= 18 && mret <= 5
+    },
+    {
+      name: 'The Calculated Risk-Taker',
+      color: '#3266ad',
+      desc: 'You trust the math. Low debt-free utility, high expected return, and a willingness to let the market do its thing. Emotions don\'t touch your spreadsheet.',
+      match: () => utility <= 3 && mret >= 10 && mvol <= 15
+    },
+    {
+      name: 'The Optimist',
+      color: '#3a9e75',
+      desc: 'Maximum market return, minimal loan anxiety. You probably own several index fund t-shirts and quote Warren Buffett at dinner parties.',
+      match: () => mret >= 12 && utility <= 4 && surplus >= 1000
+    },
+    {
+      name: 'The Young Professional',
+      color: '#3266ad',
+      desc: 'Realistic balance, modest surplus, standard federal rate. Just starting out, trying to do the right thing without any strong conviction either way.',
+      match: () => balance >= 20000 && balance <= 50000 && surplus >= 100 && surplus <= 500 && utility >= 4 && utility <= 6
+    },
+    {
+      name: 'The Pragmatist',
+      color: '#6b6b66',
+      desc: 'Middle of the road on everything. You acknowledge the grey area and you\'re okay with it. The correct answer is probably "it depends," and you\'ve accepted that.',
+      match: () => utility >= 4 && utility <= 6 && mret >= 6 && mret <= 10 && mvol >= 10 && mvol <= 18
+    },
+    {
+      name: 'The Debt Denier',
+      color: '#ba7517',
+      desc: 'Low surplus, long term, low extra payments. You\'re making minimum payments and hoping things work out. Spoiler: the interest is not hoping with you.',
+      match: () => surplus <= 150 && term >= 20
+    },
+    {
+      name: 'The Aggressive Accumulator',
+      color: '#3a9e75',
+      desc: 'High surplus, high market return expectations, long time horizon. You\'re in full wealth-building mode and the loan is just a small inconvenience.',
+      match: () => surplus >= 1500 && mret >= 10 && term >= 15
+    },
+  ];
+
+  const box = document.getElementById('personality-box');
+  const nameEl = document.getElementById('personality-name');
+  const descEl = document.getElementById('personality-desc');
+
+  const match = personalities.find(p => p.match()) || {
+    name: 'The Undecided',
+    color: '#9e9e98',
+    desc: 'Your inputs don\'t fit neatly into any category — which honestly makes you the most realistic person here. Keep adjusting and see where you land.',
   };
-  const p = presets[name];
-  document.getElementById('balance').value  = p.balance;
-  document.getElementById('rate').value     = p.rate;
-  document.getElementById('term').value     = p.term;
-  document.getElementById('surplus').value  = p.surplus;
-  document.getElementById('mret').value     = p.mret;
-  document.getElementById('mvol').value     = p.mvol;
-  document.getElementById('taxrate').value  = p.taxrate;
-  document.getElementById('utility').value  = p.utility;
-  const descBox = document.getElementById('preset-desc');
-  const descText = document.getElementById('preset-desc-text');
-  descBox.style.display = 'block';
-  descBox.style.borderLeftColor = p.color;
-  descText.textContent = p.desc;
-  update();
+
+  nameEl.textContent = match.name;
+  descEl.textContent = match.desc;
+  box.style.borderLeftColor = match.color;
+  nameEl.style.color = match.color;
 }
 
 function triggerGameOver() {
